@@ -45,6 +45,35 @@
         } catch { return cloneRealScriptTree(REAL_SCRIPT_DEFAULTS); }
       };
       const saveRealScriptFs = (fs) => localStorage.setItem(REAL_SCRIPT_FS_KEY, JSON.stringify(fs));
+      // [TECHNICAL WRAPPER] Faithful browser fallback for the original native
+      // `hub_fetch` command. The original Real.exe validates these URL
+      // prefixes, performs a GET with its Real user-agent, and returns the
+      // response body as text. No response data is embedded here.
+      const REAL_HUB_FETCH_PREFIXES = [
+        "https://haxhell.com/",
+        "https://api.haxhell.com/",
+        "https://api.projectreal.live/",
+        "https://scriptblox.com/",
+        "https://rscripts.net/",
+        "https://robloxscripts.com/",
+        "https://rawscripts.net/",
+        "https://apis.roblox.com/",
+        "https://thumbnails.roblox.com/"
+      ];
+      const realHubFetch = async (value) => {
+        const url = String(value || "");
+        if (!REAL_HUB_FETCH_PREFIXES.some((prefix) => url.startsWith(prefix))) {
+          throw new Error("URL not allowed");
+        }
+        let response;
+        try {
+          response = await fetch(`/__real/hub-fetch?url=${encodeURIComponent(url)}`, { method: "GET", credentials: "same-origin" });
+        } catch (error) {
+          throw new Error(`Request failed with ${error?.message || "network error"}`);
+        }
+        if (!response.ok) throw new Error(`Request failed with ${response.status}`);
+        return await response.text();
+      };
       const splitRealScriptPath = (value) => String(value || "").split("/").map((part) => part.trim()).filter(Boolean);
       const findRealScriptNode = (nodes, parts, createDirs = false) => {
         let current = nodes;
@@ -138,6 +167,7 @@
           if (command === "plugin:window|get_all_windows") return [];
           if (command === "check_session" && (window.localStorage.getItem("__real_guest_mode") === "true" || new URLSearchParams(window.location.search).get("guest") === "1")) return { username: "Guest", expires_at: null };
           if (command === "get_real_version") return "2.7.0";
+          if (command === "hub_fetch") return await realHubFetch(args.url);
           if (command === "get_roblox_version") return "";
           if (command === "check_real_update") return { currentVersion: "2.7.0", latestVersion: "2.7.0", status: "current", updateAvailable: false, force: false };
           if (command === "get_access_state" && (window.localStorage.getItem("__real_guest_mode") === "true" || new URLSearchParams(window.location.search).get("guest") === "1")) return { account_id: "guest", username: "Guest", plan: "free_trial", plan_active: true, balance_active: true, expires_at: null };
