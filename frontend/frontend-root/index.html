@@ -33,7 +33,7 @@
       globalThis.__REAL_INVOKES__ = [];
       const REAL_SCRIPT_FS_KEY = "__real_recovered_script_fs";
       const REAL_SCRIPT_DEFAULTS = {
-        Scripts: [{ name: "Welcome.lua", is_dir: false, children: [], content: "-- Safe local frontend test script\nprint('Hello from the recovered Scripts tab')\n" }],
+        Scripts: [],
         Workspace: [],
         AutoExec: []
       };
@@ -82,35 +82,8 @@
         if (!node && create) { node = { name: leaf, is_dir: false, children: [], content: "" }; container.push(node); }
         return node || null;
       };
-      const REAL_SAFE_SCRIPT = {
-        id: "recovered-safe-example",
-        _id: "recovered-safe-example",
-        title: "Recovered UI Example",
-        slug: "recovered-safe-example",
-        game: { name: "Frontend Demo" },
-        views: 0,
-        verified: true,
-        key: false,
-        isUniversal: true,
-        isPatched: false,
-        scriptType: "free",
-        isPaid: false,
-        script: "-- Safe frontend-only example\nprint('Scripts tab is working')\n"
-      };
-      const getSafeHubResponse = (url) => {
-        const value = String(url || "");
-        const featured = { id: REAL_SAFE_SCRIPT.id, title: REAL_SAFE_SCRIPT.title, slug: REAL_SAFE_SCRIPT.slug, game: "Frontend Demo", provider: "rscripts", script: REAL_SAFE_SCRIPT.script };
-        if (value.includes("featured-scripts")) return JSON.stringify({ featured: [featured] });
-        if (value.includes("scriptblox.com/api/script")) return JSON.stringify({ result: { scripts: [REAL_SAFE_SCRIPT], totalPages: 1 }, data: [REAL_SAFE_SCRIPT], meta: { totalPages: 1 } });
-        if (value.includes("api.projectreal.live/public/rscripts")) return JSON.stringify({ data: [REAL_SAFE_SCRIPT], pagination: { pages: 1, totalPages: 1 }, meta: { totalPages: 1 } });
-        if (value.includes("haxhell.com/api/v1") || value.includes("robloxscripts.com/api/v1")) return JSON.stringify({ data: [REAL_SAFE_SCRIPT], pagination: { pages: 1, totalPages: 1 } });
-        if (value.includes("thumbnails.roblox.com")) return JSON.stringify({ data: [] });
-        if (value.includes("/script/") || value.includes("/scripts/")) return JSON.stringify({ data: REAL_SAFE_SCRIPT, script: REAL_SAFE_SCRIPT });
-        return JSON.stringify({});
-      };
       const handleRealScriptCommand = (command, args = {}) => {
         const fs = loadRealScriptFs();
-        if (command === "hub_fetch") return getSafeHubResponse(args.url);
         if (command === "get_folder_tree") return getRealScriptTree(fs, args.folder);
         if (command === "get_folder_scripts") return getRealScriptTree(fs, args.folder);
         if (command === "cloud_scripts_list") return { tree: [], quota: null };
