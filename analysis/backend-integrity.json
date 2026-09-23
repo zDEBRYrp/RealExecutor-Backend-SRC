@@ -1,0 +1,74 @@
+{
+  "installed_root": "C:\\Users\\zdebr\\AppData\\Local\\Real\\real-2.7.0",
+  "extracted_root": "C:\\Users\\zdebr\\Documents\\Codex\\2026-09-23\\files-pasted-by-the-user-windows\\outputs\\RealExecutor-Extracted\\original\\real-2.7.0",
+  "native_components": [
+    {
+      "path": "Real.exe",
+      "installed_exists": true,
+      "extracted_exists": true,
+      "installed_size": 16985088,
+      "extracted_size": 16985088,
+      "installed_sha256": "391AE1F85EB09FAC64E17283932A0598263C5C987858FDA80B76FFA52C4E0C13",
+      "extracted_sha256": "391AE1F85EB09FAC64E17283932A0598263C5C987858FDA80B76FFA52C4E0C13",
+      "byte_identical": true
+    },
+    {
+      "path": "bin/Real.exe",
+      "installed_exists": true,
+      "extracted_exists": true,
+      "installed_size": 6538768,
+      "extracted_size": 6538768,
+      "installed_sha256": "4EE7821036625457D78436D5237AEE65C2F0CC138A8D33BDB046F8BD80AA4BF4",
+      "extracted_sha256": "4EE7821036625457D78436D5237AEE65C2F0CC138A8D33BDB046F8BD80AA4BF4",
+      "byte_identical": true
+    },
+    {
+      "path": "bin/Real.dll",
+      "installed_exists": true,
+      "extracted_exists": true,
+      "installed_size": 4301584,
+      "extracted_size": 4301584,
+      "installed_sha256": "70823B0B52EF157FBAC3B6976EC7B84975047355D7419A9B762CDF5B39DA7466",
+      "extracted_sha256": "70823B0B52EF157FBAC3B6976EC7B84975047355D7419A9B762CDF5B39DA7466",
+      "byte_identical": true
+    },
+    {
+      "path": "bin/real-mcp.exe",
+      "installed_exists": true,
+      "extracted_exists": true,
+      "installed_size": 1699840,
+      "extracted_size": 1699840,
+      "installed_sha256": "A281001F9EBD6C6F4776DB34F883186C069BEC4EAF878D7D940FF354AD14E6DE",
+      "extracted_sha256": "A281001F9EBD6C6F4776DB34F883186C069BEC4EAF878D7D940FF354AD14E6DE",
+      "byte_identical": true
+    },
+    {
+      "path": "bin/luau-lsp.exe",
+      "installed_exists": true,
+      "extracted_exists": true,
+      "installed_size": 16916992,
+      "extracted_size": 16916992,
+      "installed_sha256": "9E85CE9370F208C97F1DFC1B8FCF7185FE64386F23130A65FC834F5323A0D653",
+      "extracted_sha256": "9E85CE9370F208C97F1DFC1B8FCF7185FE64386F23130A65FC834F5323A0D653",
+      "byte_identical": true
+    },
+    {
+      "path": "bin/Spoofer.exe",
+      "installed_exists": true,
+      "extracted_exists": true,
+      "installed_size": 2806800,
+      "extracted_size": 2806800,
+      "installed_sha256": "F60B4A7EC95AD2D677C20A1385C2305FE72B5722DD56E9C107C805B381238E4D",
+      "extracted_sha256": "F60B4A7EC95AD2D677C20A1385C2305FE72B5722DD56E9C107C805B381238E4D",
+      "byte_identical": true
+    }
+  ],
+  "all_native_components_byte_identical": true,
+  "not_copied_by_design": [
+    "account-vault.dpapi",
+    "WebView2 profile/cache databases and cookies",
+    "user shortcuts (.lnk)",
+    "temporary installer/setup logs"
+  ],
+  "conclusion": "Native backend binaries are fully present and byte-identical for the six installed components listed above. Native Rust source and registered command handlers are not present as source files; the frontend can only observe their command names and call shape from production assets/binary data."
+}

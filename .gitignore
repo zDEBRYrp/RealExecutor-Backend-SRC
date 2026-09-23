@@ -1,0 +1,16 @@
+# Never commit local account data or WebView state
+*.dpapi
+*.lnk
+*.sqlite
+*.sqlite3
+*.db
+*.log
+user-data/
+webview-cache/
+cookies/
+
+# Local tooling
+__pycache__/
+.venv/
+.idea/
+.vscode/
