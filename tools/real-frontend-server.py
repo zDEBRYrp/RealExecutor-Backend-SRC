@@ -10,9 +10,9 @@ from __future__ import annotations
 import argparse
 import http.server
 import pathlib
-import urllib.error
 import urllib.parse
-import urllib.request
+
+import requests
 
 
 ALLOWED_PREFIXES = (
@@ -46,27 +46,19 @@ class RealFrontendHandler(http.server.SimpleHTTPRequestHandler):
             self._send_text(403, "URL not allowed")
             return
 
-        request = urllib.request.Request(
-            target,
-            method="GET",
-            headers={"User-Agent": REAL_USER_AGENT, "Accept": "*/*"},
-        )
         try:
-            with urllib.request.urlopen(request, timeout=30) as response:
-                body = response.read()
-                self.send_response(response.status)
-                self.send_header("Content-Type", response.headers.get("Content-Type", "text/plain"))
-                self.send_header("Content-Length", str(len(body)))
-                self.end_headers()
-                self.wfile.write(body)
-        except urllib.error.HTTPError as error:
-            body = error.read()
-            self.send_response(error.code)
-            self.send_header("Content-Type", error.headers.get("Content-Type", "text/plain"))
+            response = requests.get(
+                target,
+                headers={"User-Agent": REAL_USER_AGENT, "Accept": "*/*"},
+                timeout=(10, 30),
+            )
+            body = response.content
+            self.send_response(response.status_code)
+            self.send_header("Content-Type", response.headers.get("Content-Type", "text/plain"))
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
-        except Exception as error:  # transport failure, surfaced to frontend
+        except requests.RequestException as error:  # transport failure, surfaced to frontend
             self._send_text(502, f"Request failed with {error}")
 
     def _send_text(self, status: int, text: str) -> None:

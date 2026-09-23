@@ -4,8 +4,7 @@
 
 Этот репозиторий подготовлен для исследовательской работы над RealExecutor. В
 него помещены нативные компоненты, извлечённые из установленной копии
-RealExecutor `2.7.0`, а также отчёты проверки целостности и анализ связи
-оригинального frontend с native backend.
+RealExecutor `2.7.0`, и восстановленная production-копия frontend.
 
 ## Что находится в репозитории
 
@@ -20,11 +19,6 @@ backend/
         ├── luau-lsp.exe
         └── Spoofer.exe
 
-analysis/
-├── backend-integrity.md
-├── backend-integrity.json
-├── ipc-commands.md
-└── recovered-command-names.txt
 ```
 
 ## Важное уточнение
@@ -35,8 +29,7 @@ analysis/
 написанная реализация и не реконструированный исходный код.
 
 Все шесть компонентов проверены сравнением SHA-256 с файлами в установленной
-копии RealExecutor. Результаты и размеры находятся в
-`analysis/backend-integrity.md` и `analysis/backend-integrity.json`.
+копии RealExecutor.
 
 ## Frontend
 
@@ -68,8 +61,11 @@ powershell -ExecutionPolicy Bypass -File .\run-frontend.ps1
 При запуске `run-frontend.ps1` поднимается технический transport для
 оригинальной Tauri-команды `hub_fetch`. Он делает настоящие GET-запросы к
 разрешённым оригиналом источникам и не содержит демо-скриптов или
-синтетических карточек. Разбор команды и проверка живых ответов находятся в
-`analysis/hub-fetch-reverse-engineering.md`.
+синтетических карточек.
+
+Transport использует установленный в рабочем Python-окружении пакет `requests`,
+поскольку Haxhell отдаёт chunked keep-alive ответ, который стандартный
+`urllib` не завершает корректно.
 
 Если внешний источник недоступен или вернул ошибку, интерфейс не подменяет её
 тестовыми данными.
