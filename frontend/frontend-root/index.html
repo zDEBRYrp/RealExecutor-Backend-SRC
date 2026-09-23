@@ -1,0 +1,184 @@
+<!doctype html>
+<!-- [TECHNICAL WRAPPER] Minimal loader for recovered original production assets. -->
+<html lang="en" data-sveltekit-preload-data="hover">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/_app/immutable/assets/0.DI5j7E5y.css">
+    <link rel="stylesheet" href="/_app/immutable/assets/2.BklpfQz9.css">
+    <link rel="stylesheet" href="/_app/immutable/assets/AppPage.Gi9xK4OS.css">
+    <link rel="stylesheet" href="/_app/immutable/assets/RegionMapModal.C9ge4tjE.css">
+    <link rel="stylesheet" href="/_app/immutable/assets/Sonner.CDymTQ5Z.css">
+    <link rel="stylesheet" href="/_app/immutable/assets/ThemeEditorWindow.CzIBPyrn.css">
+    <link rel="stylesheet" href="/_app/immutable/assets/TooltipHost.B6j12BQS.css">
+    <link rel="stylesheet" href="/_app/immutable/assets/UndockedPanelView.DaFNgO-R.css">
+    <link rel="stylesheet" href="/_app/immutable/assets/UndockedScriptWindow.CxL_pWjI.css">
+    <link rel="stylesheet" href="/_app/immutable/assets/history-controller.CY_pUZB-.css">
+    <link rel="stylesheet" href="/_app/immutable/assets/panel-docking-service.DcDzUDJM.css">
+    <link rel="stylesheet" href="/_app/immutable/assets/runtime-datamodel-lsp.DoIFIGpL.css">
+    <link rel="stylesheet" href="/_app/immutable/assets/sonner.DZTCGkOb.css">
+    <link rel="stylesheet" href="/_app/immutable/assets/window-settings-sync.C9RlVxzx.css">
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div id="svelte"></div>
+    <script type="module">
+      globalThis.__sveltekit_ckguwu = { base: "", assets: "" };
+      if (new URLSearchParams(window.location.search).get("guest") === "1") {
+        localStorage.setItem("accountRememberMe", "true");
+        localStorage.setItem("__real_guest_mode", "true");
+      }
+      // [TECHNICAL WRAPPER] Browser-only stand-ins for Tauri metadata/events.
+      // The recovered UI is allowed to manage a browser-local Scripts tree.
+      // Native execution, injection and process/memory operations stay disabled.
+      globalThis.__REAL_INVOKES__ = [];
+      const REAL_SCRIPT_FS_KEY = "__real_recovered_script_fs";
+      const REAL_SCRIPT_DEFAULTS = {
+        Scripts: [{ name: "Welcome.lua", is_dir: false, children: [], content: "-- Safe local frontend test script\nprint('Hello from the recovered Scripts tab')\n" }],
+        Workspace: [],
+        AutoExec: []
+      };
+      const cloneRealScriptTree = (value) => JSON.parse(JSON.stringify(value));
+      const loadRealScriptFs = () => {
+        try {
+          const saved = JSON.parse(localStorage.getItem(REAL_SCRIPT_FS_KEY) || "null");
+          return saved && typeof saved === "object" ? saved : cloneRealScriptTree(REAL_SCRIPT_DEFAULTS);
+        } catch { return cloneRealScriptTree(REAL_SCRIPT_DEFAULTS); }
+      };
+      const saveRealScriptFs = (fs) => localStorage.setItem(REAL_SCRIPT_FS_KEY, JSON.stringify(fs));
+      const splitRealScriptPath = (value) => String(value || "").split("/").map((part) => part.trim()).filter(Boolean);
+      const findRealScriptNode = (nodes, parts, createDirs = false) => {
+        let current = nodes;
+        for (const part of parts) {
+          let node = current.find((item) => item.name === part && item.is_dir);
+          if (!node && createDirs) { node = { name: part, is_dir: true, children: [] }; current.push(node); }
+          if (!node) return null;
+          current = node.children;
+        }
+        return current;
+      };
+      const getRealScriptTree = (fs, folder) => {
+        const parts = splitRealScriptPath(String(folder || "Scripts").replace(/^custom:/, ""));
+        const root = parts.shift() || "Scripts";
+        let nodes = fs[root] || [];
+        for (const part of parts) {
+          const node = nodes.find((item) => item.name === part && item.is_dir);
+          if (!node) return [];
+          nodes = node.children;
+        }
+        return cloneRealScriptTree(nodes);
+      };
+      const getRealScriptNode = (fs, folder, name, create = false) => {
+        const folderParts = splitRealScriptPath(folder || "Scripts");
+        const root = folderParts.shift() || "Scripts";
+        if (!fs[root]) fs[root] = [];
+        const parent = findRealScriptNode(fs[root], folderParts, create);
+        if (!parent) return null;
+        const parts = splitRealScriptPath(name);
+        const leaf = parts.pop();
+        if (!leaf) return null;
+        const container = findRealScriptNode(parent, parts, create);
+        if (!container) return null;
+        let node = container.find((item) => item.name === leaf);
+        if (!node && create) { node = { name: leaf, is_dir: false, children: [], content: "" }; container.push(node); }
+        return node || null;
+      };
+      const handleRealScriptCommand = (command, args = {}) => {
+        const fs = loadRealScriptFs();
+        if (command === "get_folder_tree") return getRealScriptTree(fs, args.folder);
+        if (command === "get_folder_scripts") return getRealScriptTree(fs, args.folder);
+        if (command === "cloud_scripts_list") return { tree: [], quota: null };
+        if (command === "list_explorer_custom_roots" || command === "get_autoexec_game_bindings") return [];
+        if (command === "read_script") return getRealScriptNode(fs, args.folder, args.name)?.content || "";
+        if (command === "get_script_path") return `${args.folder || "Scripts"}/${args.name || ""}`;
+        if (command === "create_script" || command === "write_script") {
+          const node = getRealScriptNode(fs, args.folder, args.name, true);
+          if (node) node.content = String(args.content || "");
+          saveRealScriptFs(fs); return null;
+        }
+        if (command === "create_folder") {
+          const folder = String(args.folder || "Scripts");
+          const parts = splitRealScriptPath(args.path);
+          const root = splitRealScriptPath(folder).shift() || "Scripts";
+          if (!fs[root]) fs[root] = [];
+          findRealScriptNode(fs[root], parts, true); saveRealScriptFs(fs); return null;
+        }
+        if (command === "rename_script") {
+          const folderParts = splitRealScriptPath(args.folder || "Scripts");
+          const root = folderParts.shift() || "Scripts";
+          let parent = fs[root] || [];
+          for (const part of folderParts) parent = parent.find((item) => item.name === part && item.is_dir)?.children || [];
+          const node = parent.find((item) => item.name === args.oldName);
+          if (node && args.newName) node.name = String(args.newName);
+          saveRealScriptFs(fs); return null;
+        }
+        if (command === "delete_script") {
+          const folderParts = splitRealScriptPath(args.folder || "Scripts");
+          const root = folderParts.shift() || "Scripts";
+          let parent = fs[root] || [];
+          for (const part of folderParts) parent = parent.find((item) => item.name === part && item.is_dir)?.children || [];
+          const name = splitRealScriptPath(args.name).pop();
+          const index = name ? parent.findIndex((item) => item.name === name) : -1;
+          if (index >= 0) parent.splice(index, 1);
+          saveRealScriptFs(fs); return null;
+        }
+        if (command === "delete_folder") { saveRealScriptFs(fs); return null; }
+        if (command === "open_script_in_explorer" || command === "open_folder_in_explorer" || command === "open_script_in_vscode" || command === "open_in_vscode") return null;
+        if (command === "check_vscode_extension") return false;
+        if (command === "write_execute_file") throw new Error("Native script execution is disabled in the recovered frontend");
+        return undefined;
+      };
+      globalThis.__TAURI_INTERNALS__ = {
+        metadata: { currentWindow: { label: "main" } },
+        transformCallback: () => 0,
+        invoke: async (command, args) => {
+          globalThis.__REAL_INVOKES__.push({ command, args });
+          if (command === "plugin:event|listen") return 1;
+          if (command === "plugin:event|unlisten" || command === "plugin:event|emit" || command === "plugin:event|emit_to") return null;
+          if (command === "plugin:window|is_maximized" || command === "plugin:window|is_minimized" || command === "plugin:window|is_focused") return false;
+          if (command === "plugin:window|get_all_windows") return [];
+          if (command === "check_session" && (window.localStorage.getItem("__real_guest_mode") === "true" || new URLSearchParams(window.location.search).get("guest") === "1")) return { username: "Guest", expires_at: null };
+          if (command === "get_real_version") return "2.7.0";
+          if (command === "get_roblox_version") return "";
+          if (command === "check_real_update") return { currentVersion: "2.7.0", latestVersion: "2.7.0", status: "current", updateAvailable: false, force: false };
+          if (command === "get_access_state" && (window.localStorage.getItem("__real_guest_mode") === "true" || new URLSearchParams(window.location.search).get("guest") === "1")) return { account_id: "guest", username: "Guest", plan: "free_trial", plan_active: true, balance_active: true, expires_at: null };
+          if (command === "get_me" && (window.localStorage.getItem("__real_guest_mode") === "true" || new URLSearchParams(window.location.search).get("guest") === "1")) return { username: "Guest", id: "guest", plan_active: true, balance_active: true, plan: "free_trial", expires_at: null };
+          if (command === "github_gist_status") return { connected: false, login: null, avatarUrl: null };
+          if (command === "load_settings" || command === "fload_settings") return "";
+          const recoveredScriptResult = handleRealScriptCommand(command, args);
+          if (recoveredScriptResult !== undefined) return recoveredScriptResult;
+          if (command.includes("settings")) return {};
+          if (command.startsWith("get_") || command.startsWith("list_")) return [];
+          if (command.startsWith("read_")) return "";
+          return null;
+        }
+      };
+      globalThis.__TAURI_EVENT_PLUGIN_INTERNALS__ = { unregisterListener() {} };
+      import { start } from "/_app/immutable/entry/start.BXGHPMMc.js";
+      import * as app from "/_app/immutable/entry/app.C9GxT-3O.js";
+      start(app, document.getElementById("svelte"));
+
+      // [TECHNICAL MODIFICATION] Adds one requested frontend-only control.
+      // It does not bypass authentication or call a native command.
+      const installGuestButton = () => {
+        const registerRow = document.querySelector(".auth-register-row");
+        if (!registerRow || document.getElementById("recovered-guest-row")) return;
+        const row = document.createElement("p");
+        row.id = "recovered-guest-row";
+        row.className = "auth-register-row svelte-1cipkoy recovered-guest-row";
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "auth-register-btn svelte-1cipkoy recovered-guest-btn";
+        button.textContent = "Continue as guest";
+        button.addEventListener("click", () => {
+          localStorage.setItem("accountRememberMe", "true");
+          localStorage.setItem("__real_guest_mode", "true");
+          location.href = location.pathname + "?guest=1";
+        });
+        row.appendChild(button);
+        registerRow.insertAdjacentElement("afterend", row);
+      };
+      new MutationObserver(installGuestButton).observe(document.getElementById("svelte"), {childList: true, subtree: true});
+      installGuestButton();
+    </script>
+  </body>
+</html>
